@@ -1,8 +1,20 @@
 ﻿{
     "Routes": [
         {
+            "DownstreamPathTemplate": "/api/users",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5100
+                }
+            ],
+            "UpstreamPathTemplate": "/identity",
+            "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+        },
+        {
             "DownstreamPathTemplate": "/api/users/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
                     "Host": "localhost",
@@ -13,8 +25,32 @@
             "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
         },
         {
+            "DownstreamPathTemplate": "/api/books",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5200
+                }
+            ],
+            "UpstreamPathTemplate": "/books",
+            "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+        },
+        {
+            "DownstreamPathTemplate": "/api/books",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5200
+                }
+            ],
+            "UpstreamPathTemplate": "/api/books",
+            "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+        },
+        {
             "DownstreamPathTemplate": "/api/books/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
                     "Host": "localhost",
@@ -25,8 +61,32 @@
             "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
         },
         {
+            "DownstreamPathTemplate": "/api/borrow",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5300
+                }
+            ],
+            "UpstreamPathTemplate": "/borrow",
+            "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+        },
+        {
+            "DownstreamPathTemplate": "/api/borrow",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5300
+                }
+            ],
+            "UpstreamPathTemplate": "/api/borrow",
+            "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+        },
+        {
             "DownstreamPathTemplate": "/api/borrow/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
                     "Host": "localhost",
@@ -37,8 +97,32 @@
             "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
         },
         {
+            "DownstreamPathTemplate": "/api/notifications",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5400
+                }
+            ],
+            "UpstreamPathTemplate": "/notifications",
+            "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+        },
+        {
+            "DownstreamPathTemplate": "/api/notifications",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5400
+                }
+            ],
+            "UpstreamPathTemplate": "/api/notifications",
+            "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+        },
+        {
             "DownstreamPathTemplate": "/api/notifications/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
                     "Host": "localhost",
@@ -50,7 +134,7 @@
         }
     ],
     "GlobalConfiguration": {
-        "BaseUrl": "https://localhost:8000"
+        "BaseUrl": "http://localhost:8000"
     },
     "SwaggerEndPoints": [
         {
@@ -59,17 +143,17 @@
                 {
                     "Name": "Identity API",
                     "Version": "v1",
-                    "Url": "https://localhost:5100/swagger/v1/swagger.json"
+                    "Url": "http://localhost:5100/swagger/v1/swagger.json"
                 }
             ]
         },
         {
-            "Key": "Books",
+            "Key": "Book",
             "Config": [
                 {
                     "Name": "Book API",
                     "Version": "v1",
-                    "Url": "https://localhost:5200/swagger/v1/swagger.json"
+                    "Url": "http://localhost:5200/swagger/v1/swagger.json"
                 }
             ]
         },
@@ -79,17 +163,17 @@
                 {
                     "Name": "Borrowing API",
                     "Version": "v1",
-                    "Url": "https://localhost:5300/swagger/v1/swagger.json"
+                    "Url": "http://localhost:5300/swagger/v1/swagger.json"
                 }
             ]
         },
         {
-            "Key": "Notifications",
+            "Key": "Notification",
             "Config": [
                 {
                     "Name": "Notification API",
                     "Version": "v1",
-                    "Url": "https://localhost:5400/swagger/v1/swagger.json"
+                    "Url": "http://localhost:5400/swagger/v1/swagger.json"
                 }
             ]
         }

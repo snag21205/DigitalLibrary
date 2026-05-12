@@ -4,7 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin()
               .AllowAnyMethod()
@@ -16,7 +16,14 @@ builder.Services.AddHttpClient();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.OpenApiInfo
+    {
+        Version = "v1",
+        Title = "Borrowing API"
+    });
+});
 
 var app = builder.Build();
 
@@ -28,8 +35,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowAll");
-
-app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
