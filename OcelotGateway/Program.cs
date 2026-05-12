@@ -1,25 +1,34 @@
+﻿using Ocelot.DependencyInjection;
+using Ocelot.Middleware;
+using MMLib.SwaggerForOcelot.DependencyInjection; // Thêm dòng này
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Cấu hình CORS cho Blazor
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazor", policy =>
+    {
+        policy.WithOrigins("http://localhost:5500")
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Load file ocelot.json
+builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
+
+// Đăng ký Ocelot VÀ Swagger cho Ocelot
+builder.Services.AddOcelot(builder.Configuration);
+builder.Services.AddSwaggerForOcelot(builder.Configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseCors("AllowBlazor");
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
+// QUAN TRỌNG: Thứ tự middleware
+app.UseSwagger();                               // 1. Tạo swagger.json
+app.UseSwaggerForOcelotUI();                    // 2. Giao diện Swagger cho Gateway (thay thế UseSwaggerUI mặc định)
+await app.UseOcelot();                          // 3. Middleware Ocelot
 
 app.Run();

@@ -1,0 +1,97 @@
+﻿{
+    "Routes": [
+        {
+            "DownstreamPathTemplate": "/api/users/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5100
+                }
+            ],
+            "UpstreamPathTemplate": "/identity/{everything}",
+            "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+        },
+        {
+            "DownstreamPathTemplate": "/api/books/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5200
+                }
+            ],
+            "UpstreamPathTemplate": "/books/{everything}",
+            "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+        },
+        {
+            "DownstreamPathTemplate": "/api/borrow/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5300
+                }
+            ],
+            "UpstreamPathTemplate": "/borrow/{everything}",
+            "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+        },
+        {
+            "DownstreamPathTemplate": "/api/notifications/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5400
+                }
+            ],
+            "UpstreamPathTemplate": "/notifications/{everything}",
+            "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+        }
+    ],
+    "GlobalConfiguration": {
+        "BaseUrl": "https://localhost:8000"
+    },
+    "SwaggerEndPoints": [
+        {
+            "Key": "Identity",
+            "Config": [
+                {
+                    "Name": "Identity API",
+                    "Version": "v1",
+                    "Url": "https://localhost:5100/swagger/v1/swagger.json"
+                }
+            ]
+        },
+        {
+            "Key": "Books",
+            "Config": [
+                {
+                    "Name": "Book API",
+                    "Version": "v1",
+                    "Url": "https://localhost:5200/swagger/v1/swagger.json"
+                }
+            ]
+        },
+        {
+            "Key": "Borrowing",
+            "Config": [
+                {
+                    "Name": "Borrowing API",
+                    "Version": "v1",
+                    "Url": "https://localhost:5300/swagger/v1/swagger.json"
+                }
+            ]
+        },
+        {
+            "Key": "Notifications",
+            "Config": [
+                {
+                    "Name": "Notification API",
+                    "Version": "v1",
+                    "Url": "https://localhost:5400/swagger/v1/swagger.json"
+                }
+            ]
+        }
+    ]
+}
