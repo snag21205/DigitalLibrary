@@ -1,0 +1,557 @@
+﻿@page "/"
+@inject HttpClient Http
+
+<PageTitle>API Dashboard</PageTitle>
+
+<h1>API Dashboard</h1>
+<p>Gateway: http://localhost:8000</p>
+
+<section class="mb-4">
+	<h2>Books</h2>
+	<div class="mb-2">
+		<button class="btn btn-primary" @onclick="LoadBooks">Load books</button>
+		@if (booksLoading)
+		{
+			<span class="ms-2">Loading...</span>
+		}
+	</div>
+	@if (!string.IsNullOrWhiteSpace(booksError))
+	{
+		<div class="alert alert-danger">@booksError</div>
+	}
+	@if (books.Count > 0)
+	{
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Id</th>
+					<th>Title</th>
+					<th>Author</th>
+					<th>Stock</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var book in books)
+				{
+					<tr>
+						<td>@book.Id</td>
+						<td>@book.Title</td>
+						<td>@book.Author</td>
+						<td>@book.Stock</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	}
+
+	<div class="row g-2 align-items-end">
+		<div class="col-12 col-md-3">
+			<label class="form-label">Book Id</label>
+			<input class="form-control" type="number" @bind="bookIdInput" />
+		</div>
+		<div class="col-12 col-md-9">
+			<button class="btn btn-outline-primary me-2" @onclick="LoadBookById">Get detail</button>
+			<button class="btn btn-outline-warning me-2" @onclick="ReduceStock">Reduce stock</button>
+			<button class="btn btn-outline-success" @onclick="IncreaseStock">Increase stock</button>
+		</div>
+	</div>
+
+	@if (!string.IsNullOrWhiteSpace(bookDetailError))
+	{
+		<div class="alert alert-danger mt-2">@bookDetailError</div>
+	}
+	@if (bookDetail != null)
+	{
+		<div class="card mt-2">
+			<div class="card-body">
+				<div><strong>Id:</strong> @bookDetail.Id</div>
+				<div><strong>Title:</strong> @bookDetail.Title</div>
+				<div><strong>Author:</strong> @bookDetail.Author</div>
+				<div><strong>Stock:</strong> @bookDetail.Stock</div>
+			</div>
+		</div>
+	}
+</section>
+
+<section class="mb-4">
+	<h2>Borrow</h2>
+	<div class="row g-2 align-items-end">
+		<div class="col-12 col-md-2">
+			<label class="form-label">User Id</label>
+			<input class="form-control" type="number" @bind="borrowUserId" />
+		</div>
+		<div class="col-12 col-md-2">
+			<label class="form-label">Book Id</label>
+			<input class="form-control" type="number" @bind="borrowBookId" />
+		</div>
+		<div class="col-12 col-md-8">
+			<button class="btn btn-primary" @onclick="BorrowBook">Borrow</button>
+		</div>
+	</div>
+
+	@if (!string.IsNullOrWhiteSpace(borrowResult))
+	{
+		<div class="alert alert-success mt-2">@borrowResult</div>
+	}
+	@if (!string.IsNullOrWhiteSpace(borrowError))
+	{
+		<div class="alert alert-danger mt-2">@borrowError</div>
+	}
+
+	<div class="row g-2 align-items-end mt-2">
+		<div class="col-12 col-md-2">
+			<label class="form-label">Borrow Id</label>
+			<input class="form-control" type="number" @bind="returnBorrowId" />
+		</div>
+		<div class="col-12 col-md-8">
+			<button class="btn btn-outline-success" @onclick="ReturnBook">Return</button>
+		</div>
+	</div>
+
+	@if (!string.IsNullOrWhiteSpace(returnResult))
+	{
+		<div class="alert alert-success mt-2">@returnResult</div>
+	}
+	@if (!string.IsNullOrWhiteSpace(returnError))
+	{
+		<div class="alert alert-danger mt-2">@returnError</div>
+	}
+
+	<div class="row g-2 align-items-end mt-2">
+		<div class="col-12 col-md-2">
+			<label class="form-label">User Id</label>
+			<input class="form-control" type="number" @bind="historyUserId" />
+		</div>
+		<div class="col-12 col-md-8">
+			<button class="btn btn-outline-primary" @onclick="LoadBorrowHistory">Load history</button>
+		</div>
+	</div>
+
+	@if (!string.IsNullOrWhiteSpace(borrowHistoryError))
+	{
+		<div class="alert alert-danger mt-2">@borrowHistoryError</div>
+	}
+	@if (borrowHistory.Count > 0)
+	{
+		<table class="table table-sm mt-2">
+			<thead>
+				<tr>
+					<th>Id</th>
+					<th>Book</th>
+					<th>Status</th>
+					<th>BorrowDate</th>
+					<th>ReturnDate</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var record in borrowHistory)
+				{
+					<tr>
+						<td>@record.Id</td>
+						<td>@record.BookId</td>
+						<td>@record.Status</td>
+						<td>@record.BorrowDate</td>
+						<td>@(record.ReturnDate?.ToString() ?? "-")</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	}
+</section>
+
+<section class="mb-4">
+	<h2>Identity</h2>
+	<div class="row g-2 align-items-end">
+		<div class="col-12 col-md-2">
+			<label class="form-label">User Id</label>
+			<input class="form-control" type="number" @bind="identityUserId" />
+		</div>
+		<div class="col-12 col-md-8">
+			<button class="btn btn-outline-primary me-2" @onclick="LoadUser">Get user</button>
+			<button class="btn btn-outline-secondary" @onclick="CheckCanBorrow">Can borrow</button>
+		</div>
+	</div>
+
+	@if (!string.IsNullOrWhiteSpace(identityError))
+	{
+		<div class="alert alert-danger mt-2">@identityError</div>
+	}
+	@if (identityUser != null)
+	{
+		<div class="card mt-2">
+			<div class="card-body">
+				<div><strong>Id:</strong> @identityUser.Id</div>
+				<div><strong>Username:</strong> @identityUser.Username</div>
+				<div><strong>Full name:</strong> @identityUser.FullName</div>
+				<div><strong>Rank:</strong> @identityUser.UserRank</div>
+			</div>
+		</div>
+	}
+	@if (canBorrowInfo != null)
+	{
+		<div class="alert alert-info mt-2">
+			CanBorrow: @canBorrowInfo.CanBorrow, Rank: @canBorrowInfo.UserRank, MaxBorrow: @canBorrowInfo.MaxBorrow
+		</div>
+	}
+</section>
+
+<section class="mb-4">
+	<h2>Notifications</h2>
+	<div class="row g-2 align-items-end">
+		<div class="col-12 col-md-2">
+			<label class="form-label">User Id</label>
+			<input class="form-control" type="number" @bind="notificationUserId" />
+		</div>
+		<div class="col-12 col-md-6">
+			<label class="form-label">Message</label>
+			<input class="form-control" type="text" @bind="notificationMessage" />
+		</div>
+		<div class="col-12 col-md-4">
+			<button class="btn btn-primary me-2" @onclick="SendNotification">Send</button>
+			<button class="btn btn-outline-primary" @onclick="LoadNotifications">Load list</button>
+		</div>
+	</div>
+
+	@if (!string.IsNullOrWhiteSpace(notificationResult))
+	{
+		<div class="alert alert-success mt-2">@notificationResult</div>
+	}
+	@if (!string.IsNullOrWhiteSpace(notificationError))
+	{
+		<div class="alert alert-danger mt-2">@notificationError</div>
+	}
+	@if (notifications.Count > 0)
+	{
+		<table class="table table-sm mt-2">
+			<thead>
+				<tr>
+					<th>Id</th>
+					<th>Message</th>
+					<th>CreatedAt</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var note in notifications)
+				{
+					<tr>
+						<td>@note.Id</td>
+						<td>@note.Message</td>
+						<td>@note.CreatedAt</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	}
+</section>
+
+@code {
+	private readonly List<BookDto> books = new();
+	private bool booksLoading;
+	private string? booksError;
+
+	private int bookIdInput;
+	private BookDto? bookDetail;
+	private string? bookDetailError;
+
+	private int borrowUserId;
+	private int borrowBookId;
+	private string? borrowResult;
+	private string? borrowError;
+
+	private int returnBorrowId;
+	private string? returnResult;
+	private string? returnError;
+
+	private int historyUserId;
+	private readonly List<BorrowRecordDto> borrowHistory = new();
+	private string? borrowHistoryError;
+
+	private int identityUserId;
+	private UserDto? identityUser;
+	private CanBorrowDto? canBorrowInfo;
+	private string? identityError;
+
+	private int notificationUserId;
+	private string? notificationMessage;
+	private string? notificationResult;
+	private string? notificationError;
+	private readonly List<NotificationDto> notifications = new();
+
+	private async Task LoadBooks()
+	{
+		booksError = null;
+		booksLoading = true;
+
+		try
+		{
+			var result = await Http.GetFromJsonAsync<List<BookDto>>("books");
+			books.Clear();
+			if (result != null)
+			{
+				books.AddRange(result);
+			}
+		}
+		catch (Exception ex)
+		{
+			booksError = ex.Message;
+		}
+		finally
+		{
+			booksLoading = false;
+		}
+	}
+
+	private async Task LoadBookById()
+	{
+		bookDetailError = null;
+		bookDetail = null;
+
+		if (bookIdInput <= 0)
+		{
+			bookDetailError = "Book Id must be greater than 0.";
+			return;
+		}
+
+		try
+		{
+			bookDetail = await Http.GetFromJsonAsync<BookDto>($"books/{bookIdInput}");
+		}
+		catch (Exception ex)
+		{
+			bookDetailError = ex.Message;
+		}
+	}
+
+	private async Task ReduceStock()
+	{
+		await UpdateStock("reduce-stock");
+	}
+
+	private async Task IncreaseStock()
+	{
+		await UpdateStock("increase-stock");
+	}
+
+	private async Task UpdateStock(string action)
+	{
+		bookDetailError = null;
+
+		if (bookIdInput <= 0)
+		{
+			bookDetailError = "Book Id must be greater than 0.";
+			return;
+		}
+
+		try
+		{
+			var response = await Http.PutAsync($"books/{bookIdInput}/{action}", null);
+			if (!response.IsSuccessStatusCode)
+			{
+				bookDetailError = await ReadError(response);
+				return;
+			}
+
+			await LoadBookById();
+			if (books.Count > 0)
+			{
+				await LoadBooks();
+			}
+		}
+		catch (Exception ex)
+		{
+			bookDetailError = ex.Message;
+		}
+	}
+
+	private async Task BorrowBook()
+	{
+		borrowResult = null;
+		borrowError = null;
+
+		if (borrowUserId <= 0 || borrowBookId <= 0)
+		{
+			borrowError = "User Id and Book Id must be greater than 0.";
+			return;
+		}
+
+		try
+		{
+			var response = await Http.PostAsync($"borrow?userId={borrowUserId}&bookId={borrowBookId}", null);
+			if (response.IsSuccessStatusCode)
+			{
+				var result = await response.Content.ReadFromJsonAsync<BorrowResultDto>();
+				borrowResult = result?.Message ?? "Borrow success.";
+			}
+			else
+			{
+				borrowError = await ReadError(response);
+			}
+		}
+		catch (Exception ex)
+		{
+			borrowError = ex.Message;
+		}
+	}
+
+	private async Task ReturnBook()
+	{
+		returnResult = null;
+		returnError = null;
+
+		if (returnBorrowId <= 0)
+		{
+			returnError = "Borrow Id must be greater than 0.";
+			return;
+		}
+
+		try
+		{
+			var response = await Http.PostAsync($"borrow/return?borrowId={returnBorrowId}", null);
+			if (response.IsSuccessStatusCode)
+			{
+				var result = await response.Content.ReadFromJsonAsync<BorrowResultDto>();
+				returnResult = result?.Message ?? "Return success.";
+			}
+			else
+			{
+				returnError = await ReadError(response);
+			}
+		}
+		catch (Exception ex)
+		{
+			returnError = ex.Message;
+		}
+	}
+
+	private async Task LoadBorrowHistory()
+	{
+		borrowHistoryError = null;
+		borrowHistory.Clear();
+
+		if (historyUserId <= 0)
+		{
+			borrowHistoryError = "User Id must be greater than 0.";
+			return;
+		}
+
+		try
+		{
+			var result = await Http.GetFromJsonAsync<List<BorrowRecordDto>>($"borrow/user/{historyUserId}");
+			if (result != null)
+			{
+				borrowHistory.AddRange(result);
+			}
+		}
+		catch (Exception ex)
+		{
+			borrowHistoryError = ex.Message;
+		}
+	}
+
+	private async Task LoadUser()
+	{
+		identityError = null;
+		identityUser = null;
+		canBorrowInfo = null;
+
+		if (identityUserId <= 0)
+		{
+			identityError = "User Id must be greater than 0.";
+			return;
+		}
+
+		try
+		{
+			identityUser = await Http.GetFromJsonAsync<UserDto>($"identity/{identityUserId}");
+		}
+		catch (Exception ex)
+		{
+			identityError = ex.Message;
+		}
+	}
+
+	private async Task CheckCanBorrow()
+	{
+		identityError = null;
+		canBorrowInfo = null;
+
+		if (identityUserId <= 0)
+		{
+			identityError = "User Id must be greater than 0.";
+			return;
+		}
+
+		try
+		{
+			canBorrowInfo = await Http.GetFromJsonAsync<CanBorrowDto>($"identity/can-borrow/{identityUserId}");
+		}
+		catch (Exception ex)
+		{
+			identityError = ex.Message;
+		}
+	}
+
+	private async Task SendNotification()
+	{
+		notificationResult = null;
+		notificationError = null;
+
+		if (notificationUserId <= 0 || string.IsNullOrWhiteSpace(notificationMessage))
+		{
+			notificationError = "User Id and message are required.";
+			return;
+		}
+
+		try
+		{
+			var message = Uri.EscapeDataString(notificationMessage);
+			var response = await Http.PostAsync($"notifications?userId={notificationUserId}&message={message}", null);
+			if (response.IsSuccessStatusCode)
+			{
+				var result = await response.Content.ReadFromJsonAsync<NotificationResultDto>();
+				notificationResult = result?.Message ?? "Notification sent.";
+			}
+			else
+			{
+				notificationError = await ReadError(response);
+			}
+		}
+		catch (Exception ex)
+		{
+			notificationError = ex.Message;
+		}
+	}
+
+	private async Task LoadNotifications()
+	{
+		notificationError = null;
+		notifications.Clear();
+
+		if (notificationUserId <= 0)
+		{
+			notificationError = "User Id must be greater than 0.";
+			return;
+		}
+
+		try
+		{
+			var result = await Http.GetFromJsonAsync<List<NotificationDto>>($"notifications/user/{notificationUserId}");
+			if (result != null)
+			{
+				notifications.AddRange(result);
+			}
+		}
+		catch (Exception ex)
+		{
+			notificationError = ex.Message;
+		}
+	}
+
+	private static async Task<string> ReadError(HttpResponseMessage response)
+	{
+		var content = await response.Content.ReadAsStringAsync();
+		return string.IsNullOrWhiteSpace(content)
+			? $"{(int)response.StatusCode} {response.ReasonPhrase}"
+			: content;
+	}
+}
